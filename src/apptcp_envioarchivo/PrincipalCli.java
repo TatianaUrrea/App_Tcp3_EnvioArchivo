@@ -206,6 +206,28 @@ public class PrincipalCli extends javax.swing.JFrame {
             // Obtiene el archivo seleccionado por el usuario.
             archivoSeleccionado = fileChooser.getSelectedFile();
 
+            // Define una lista de extensiones válidas para archivos planos.
+            String[] extensionesValidas = {".txt", ".csv", ".log", ".dat"};
+            String archivoNombre = archivoSeleccionado.getName().toLowerCase();
+
+            // Verifica si el archivo tiene una de las extensiones válidas.
+            boolean esArchivoPlano = false;
+            for (String extension : extensionesValidas) {
+                if (archivoNombre.endsWith(extension) && archivoNombre.equals(archivoNombre.substring(0, archivoNombre.length() - extension.length()) + extension)) {
+                    esArchivoPlano = true;
+                    break;
+                }
+            }
+
+            if (!esArchivoPlano) {
+                // Muestra un mensaje de advertencia si el archivo no es válido.
+                JOptionPane.showMessageDialog(this, "Por favor, seleccione un archivo plano válido. (Extensiones válidas: .txt, .csv, .log, .dat)", "Archivo no válido", JOptionPane.ERROR_MESSAGE);
+                // Registra un mensaje en el log indicando que el archivo no es válido.
+                log("Intento de carga fallido: el archivo seleccionado no es un archivo plano válido.");
+                // Sale del método si el archivo no es válido.
+                return;
+            }
+
             // Obtiene el usuario seleccionado en la lista de usuarios.
             String destinatario = usuariosList.getSelectedValue();
 
@@ -379,6 +401,11 @@ public class PrincipalCli extends javax.swing.JFrame {
             log("Archivo " + fileName + " enviado a " + destinatario);
             // Actualiza el área de mensajes con la notificación del archivo enviado.
             mensajesTxt.append("Archivo " + fileName + " enviado a " + destinatario + "\n");
+
+            // Actualiza el área de mensajes con el mensaje enviado.
+            // Usa un StringBuilder para construir la conversación con el destinatario.
+            StringBuilder conversacion = conversaciones.computeIfAbsent(destinatario, k -> new StringBuilder());
+            conversacion.append(clienteNombre + ": Archivo: " + fileName + "\n");
         } catch (IOException e) {
             // Registra cualquier error que ocurra durante el envío del archivo.
             log("Error al enviar el archivo: " + e.getMessage());
@@ -433,8 +460,8 @@ public class PrincipalCli extends javax.swing.JFrame {
             });
         } else {
             // Mensaje de formato desconocido o genérico
-            log("Mensaje genérico recibido: " + mensaje);
-            mensajesTxt.append(mensaje + "\n"); // Muestra el mensaje genérico en el área de mensajes
+            log("Mensaje generico recibido: " + mensaje);
+            mensajesTxt.append(""); // Muestra el mensaje genérico en el área de mensajes
         }
     }
 
@@ -628,7 +655,7 @@ public class PrincipalCli extends javax.swing.JFrame {
 
     // Método para imprimir mensajes de log
     private void log(String message) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String timestamp = sdf.format(new Date());
         System.out.println("[CLIENT " + clienteNombre + " " + timestamp + "] " + message);
     }
