@@ -274,14 +274,19 @@ public class PrincipalSrv extends javax.swing.JFrame {
                 log("Notificación de archivo entrante enviada a " + destinatario + ": " + fileName + ", tamaño: " + fileSize + " bytes");
 
                 // Enviar información del archivo al destinatario
-                destinatarioConn.dataOut.writeUTF(fileName);
-                destinatarioConn.dataOut.writeLong(fileSize);
+                //destinatarioConn.dataOut.writeUTF(fileName);
+                //destinatarioConn.dataOut.writeLong(fileSize);
                 log("Información del archivo enviada a " + destinatario + ": " + fileName + ", tamaño: " + fileSize + " bytes");
 
                 // Transferir el archivo al destinatario
                 while (bytesReceived < fileSize) {
                     // Lee el archivo desde el flujo de entrada del cliente
                     int bytesRead = dataIn.read(buffer, 0, (int) Math.min(buffer.length, fileSize - bytesReceived));
+                    if (bytesRead == -1) {
+                        // Fin de archivo, salir del bucle
+                        log("Proceso de esritura vdsvggvdf<gvdfgvsdf");
+                        break;
+                    }
                     // Escribe los bytes leídos en el flujo de salida del destinatario
                     destinatarioConn.dataOut.write(buffer, 0, bytesRead);
                     // Actualiza el total de bytes recibidos
